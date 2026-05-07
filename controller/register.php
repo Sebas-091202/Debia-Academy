@@ -16,7 +16,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     $check->execute([":correo"=>$correo]);
 
     if($check->rowCount() > 0){
-        echo "El usuario ya existe";
+        echo "<script>alert('El correo ya existe'); window.location.href='../views/index_Login.html';</script>";
         exit;
     }
 
@@ -50,7 +50,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     } catch(PDOException $e){
 
-        echo "Error en registro: " . $e->getMessage();
+        echo "<script>alert('Error en registro: " . $e->getMessage() . "'); window.location.href='../views/index_Login.html';</script>";
 
     }
 }

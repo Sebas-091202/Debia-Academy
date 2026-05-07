@@ -4,42 +4,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DEBIA Academy</title>
+
 <link rel="stylesheet" href="../css/login.css">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
 </head>
 
 <body>
 
 <div class="container">
 
-    <!-- LADO IZQUIERDO -->
+    <!-- IZQUIERDA -->
     <div class="left">
         <img src="../img/debia-academy-blanco.png" class="logo">
         <h2>DEBIA Academy</h2>
         <p>Capacitación profesional segura</p>
     </div>
 
-    <!-- LADO DERECHO -->
+    <!-- DERECHA -->
     <div class="right">
 
         <!-- LOGIN -->
         <form id="loginForm" class="form active" action="../controller/login.php" method="POST">
+
             <h2>Iniciar Sesión</h2>
 
-            <div class="input">
-                <i class='bx bx-envelope'></i>
-                <input type="email" name="correo" placeholder="Correo" required>
+            <div class="input-group">
+                <input type="email" name="correo" required>
+                <label>Correo</label>
             </div>
 
-            <div class="input">
-                <i class='bx bx-lock'></i>
-                <input type="password" name="contrasena" placeholder="Contraseña" required>
+            <div class="input-group password">
+                <input type="password" name="contrasena" id="loginPass" required>
+                <label>Contraseña</label>
+                <i class='bx bx-show togglePass' onclick="togglePassword('loginPass', this)"></i>
             </div>
 
             <button type="submit">Ingresar</button>
+            <div class="switch" onclick="toggle()">Crear cuenta</div>
 
-            <div class="switch">Crear cuenta</div>
         </form>
 
         <!-- REGISTRO -->
@@ -47,50 +51,51 @@
 
             <h2>Registro</h2>
 
-            <div class="input">
-                <i class='bx bx-user'></i>
-                <input type="text" name="nombre" placeholder="Nombre completo" required>
+            <div class="input-group">
+                <input type="text" name="nombre" required>
+                <label>Nombre completo</label>
             </div>
 
-            <div class="input">
-                <i class='bx bx-id-card'></i>
+            <div class="input-group">
                 <select name="tipo_documento" required>
-                    <option value="">Tipo documento</option>
+                    <option value="" disabled selected></option>
                     <option>Cédula</option>
                     <option>Pasaporte</option>
                 </select>
+                <label>Tipo documento</label>
             </div>
 
-            <div class="input">
-                <i class='bx bx-hash'></i>
-                <input type="number" name="numero_identificacion" placeholder="Número identificación" required>
+            <div class="input-group">
+                <input type="number" name="numero_identificacion" required>
+                <label>Número identificación</label>
             </div>
 
-            <div class="input">
-                <i class='bx bx-envelope'></i>
-                <input type="email" name="correo" placeholder="Correo" required>
+            <div class="input-group">
+                <input type="email" name="correo" required>
+                <label>Correo</label>
             </div>
 
-            <div class="input">
-                <i class='bx bx-briefcase'></i>
+            <div class="input-group">
                 <select name="area" required>
-                    <option value="">Área</option>
+                    <option value="" disabled selected></option>
                     <option>Investigaciones Privadas</option>
                     <option>Visitas Domiciliarias</option>
                     <option>Poligrafía</option>
                     <option>Validación Académica</option>
                     <option>Asesoría Jurídica</option>
                 </select>
+                <label>Área</label>
             </div>
 
-            <div class="input">
-                <i class='bx bx-lock'></i>
-                <input type="password" name="contrasena" placeholder="Contraseña" required>
+            <div class="input-group password">
+                <input type="password" name="contrasena" id="registerPass" required>
+                <label>Contraseña</label>
+                <i class='bx bx-show togglePass' onclick="togglePassword('registerPass', this)"></i>
             </div>
 
             <button type="submit">Registrarse</button>
 
-            <div class="switch">Ya tengo cuenta</div>
+            <div class="switch" onclick="toggle()">Ya tengo cuenta</div>
 
         </form>
 
