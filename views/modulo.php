@@ -1,93 +1,63 @@
 <?php
-/* Necesito que las vistas, muestren el contenido del módulo seleccionado, segun los documentos. ademas que tenga una navegacion dinamica 
-de la informacion que se encuentra, que si no le da a marcar como leido, no deje avanzar en el proceso, ademas que el boton de mmodulo
-completado este bloqueadon hasta que se marque como leido todo el modulo.*/
 session_start();
 require_once("../bd/conn.php");
 
-if (!isset($_SESSION["usuario"])) {
-    header("Location: index_User.php");
+/* ✅ VALIDAR SESIÓN */
+if (!isset($_SESSION["id"])) {
+    header("Location: index_Login.php");
     exit;
 }
 
 $id_usuario = $_SESSION["id"];
-
-/* ✅ ID DINÁMICO */
+$area = $_SESSION["area"];
 $id_modulo = $_GET["id"] ?? 1;
 
-/* ✅ CONTENIDO TEXTUAL DIRECTO */
-switch($id_modulo){
-
-    case 1:
-        $titulo = "Introducción al Área";
-        $contenido = "
-        Bienvenido a Consultorías Debia.
-
-        Este módulo tiene como objetivo brindarte una visión general de:
-
-        - Procesos de validación
-        - Importancia de la seguridad en la información
-        - Procedimientos iniciales de verificación
-
-        Es importante comprender estos conceptos antes de avanzar.
-        ";
-    break;
-
-    case 2:
-        $titulo = "Procedimientos Clave";
-        $contenido = "
-        En este módulo aprenderás los procesos fundamentales:
-
-        - Validación de antecedentes laborales
-        - Recolección de información del evaluado
-        - Verificación de referencias
-
-        Estos pasos deben cumplirse de forma estructurada.
-        ";
-    break;
-
-    case 3:
-        $titulo = "Normativa y Ética";
-        $contenido = "
-        Este módulo aborda aspectos legales:
-
-        - Protección de datos personales
-        - Confidencialidad de la información
-        - Responsabilidad profesional
-
-        El incumplimiento de estas normas puede generar consecuencias legales.
-        ";
-    break;
-
-    default:
-        $titulo = "Módulo no encontrado";
-        $contenido = "No existe el contenido.";
-}
-
-/* ✅ PROGRESO REAL */
-$sql = "SELECT porcentaje FROM progreso 
-        WHERE id_usuario = :usuario AND id_modulo = :modulo";
-
+/* ✅ VALIDAR MODULO */
+$sql = "SELECT * FROM modulos WHERE id = :id AND area = :area";
 $stmt = $conn->prepare($sql);
 $stmt->execute([
-    ":usuario"=>$id_usuario,
-    ":modulo"=>$id_modulo
+    ":id"=>$id_modulo,
+    ":area"=>$area
 ]);
 
-$res = $stmt->fetch(PDO::FETCH_ASSOC);
+$modulo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if(!$modulo){
+    echo "Acceso no permitido";
+    exit;
+}
+
+/* ✅ CONTENIDO */
+$sql2 = "SELECT * FROM contenidos WHERE id_modulo = :id ORDER BY id ASC";
+$stmt2 = $conn->prepare($sql2);
+$stmt2->execute([":id"=>$id_modulo]);
+$contenidos = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+/* ✅ PROGRESO */
+$sql3 = "SELECT porcentaje FROM progreso 
+         WHERE id_usuario = :u AND id_modulo = :m";
+
+$stmt3 = $conn->prepare($sql3);
+$stmt3->execute([
+    ":u"=>$id_usuario,
+    ":m"=>$id_modulo
+]);
+
+$res = $stmt3->fetch(PDO::FETCH_ASSOC);
 $porcentaje = $res ? $res["porcentaje"] : 0;
+
+$titulo = $modulo["titulo"];
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title><?php echo $titulo; ?></title>
+<title><?= $titulo ?></title>
 
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-
 body{
     font-family:'Montserrat',sans-serif;
     margin:0;
@@ -99,7 +69,7 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    height:100vh;
+    min-height:100vh;
 }
 
 @keyframes grad{
@@ -117,27 +87,35 @@ body{
     color:white;
 }
 
-h1{text-align:center;}
-
-/* TEXTO */
-.content{
-    margin-top:20px;
-    line-height:1.7;
-    white-space: pre-line;
+h1{
+    text-align:center;
 }
 
-/* PROGRESO */
+a{
+    color:white;
+    text-decoration:none;
+}
+
+/* BLOQUES */
+.bloque{
+    margin-top:20px;
+    padding:15px;
+    background:rgba(0,0,0,0.4);
+    border-radius:15px;
+}
+
+/* BARRA */
 .bar{
     margin-top:20px;
-    height:10px;
-    background:rgba(255,255,255,0.3);
+    height:12px;
+    background:rgba(255,255,255,0.2);
     border-radius:10px;
 }
 
 .bar span{
     display:block;
     height:100%;
-    background:#22c55e;
+    background:linear-gradient(90deg,#22c55e,#4ade80);
 }
 
 /* BOTONES */
@@ -152,15 +130,15 @@ button{
     cursor:pointer;
 }
 
-button:hover{background:#1e40af;}
+button:disabled{
+    background:gray;
+}
 
 .volver{
     margin-top:15px;
     display:inline-block;
     color:white;
-    text-decoration:none;
 }
-
 </style>
 </head>
 
@@ -168,34 +146,82 @@ button:hover{background:#1e40af;}
 
 <div class="container">
 
-<h1><?php echo $titulo; ?></h1>
+<h1><?= $titulo ?></h1>
 
-<div class="content">
-<?php echo $contenido; ?>
-</div>
-
-<!-- ✅ BARRA PROGRESO -->
-<div class="bar">
-    <span style="width:<?php echo $porcentaje; ?>%"></span>
-</div>
-
-<p><?php echo $porcentaje; ?>% completado</p>
-
-<!-- ✅ BOTON -->
-<?php if($porcentaje < 100): ?>
-
-<form action="../controller/guardar_progreso.php" method="post">
-    <input type="hidden" name="id_modulo" value="<?php echo $id_modulo; ?>">
-    <button type="submit">✅ Marcar como completado</button>
-</form>
-
-<?php else: ?>
-
-<button disabled>✅ Módulo completado</button>
-
+<?php if(empty($contenidos)): ?>
+    <p style="color:#f87171;">❌ Este módulo aún no tiene contenido</p>
 <?php endif; ?>
 
-<a href="index_User.php" class="volver">← Volver</a>
+<?php foreach($contenidos as $c): ?>
+
+    <!-- TEXTO -->
+    <?php if($c["tipo"] == "texto"): ?>
+        <div class="bloque">
+            <?= nl2br($c["contenido"]) ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- VIDEO -->
+    <?php if($c["tipo"] == "video"): ?>
+        <div class="bloque">
+            <iframe width="100%" height="400"
+                src="<?= $c["contenido"] ?>"
+                frameborder="0" allowfullscreen>
+            </iframe>
+        </div>
+    <?php endif; ?>
+
+    <!-- ARCHIVOS -->
+    <?php if($c["tipo"] == "archivo" || $c["tipo"] == "pdf"): ?>
+
+        <div class="bloque">
+
+        <?php 
+        $archivo = $c["contenido"];
+
+        if(strpos($archivo, ".pdf") !== false): ?>
+
+            <iframe src="<?= $archivo ?>#toolbar=1"
+                width="100%" height="500">
+            </iframe>
+
+        <?php elseif(preg_match('/\.(jpg|png|jpeg|gif)$/i', $archivo)): ?>
+
+            <img src="<?= $archivo ?>" 
+            style="width:100%; border-radius:10px;">
+
+        <?php else: ?>
+
+            <p>Video--</p><a href="<?= $archivo ?>" target="_blank">
+            📄 Descargar archivo 
+            </a>
+
+        <?php endif; ?>
+
+        </div>
+
+    <?php endif; ?>
+
+<?php endforeach; ?>
+
+<!-- PROGRESO -->
+<div class="bar">
+    <span style="width:<?= $porcentaje ?>%"></span>
+</div>
+
+<p><?= $porcentaje ?>% completado</p>
+
+<!-- BOTÓN -->
+<?php if($porcentaje < 100): ?>
+<form action="../controller/guardar_progreso.php" method="post">
+    <input type="hidden" name="id_modulo" value="<?= $id_modulo ?>">
+    <button>Marcar como completado</button>
+</form>
+<?php else: ?>
+<button disabled>Módulo completado</button>
+<?php endif; ?>
+
+<a href="index_Usuario.php" class="volver">← Volver</a>
 
 </div>
 

@@ -4,6 +4,7 @@ const registerForm = document.getElementById("registerForm");
 const tabLogin = document.getElementById("tabLogin");
 const tabRegister = document.getElementById("tabRegister");
 
+
 function toggle(){
     loginForm.classList.toggle("active");
     registerForm.classList.toggle("active");
@@ -29,6 +30,7 @@ tabRegister.onclick = () => {
 };
 
 /* MOSTRAR CONTRASEÑA */
+
 function togglePassword(id, icon){
     const input = document.getElementById(id);
 
@@ -40,3 +42,5 @@ function togglePassword(id, icon){
         icon.classList.replace("bx-hide", "bx-show");
     }
 }
+
+

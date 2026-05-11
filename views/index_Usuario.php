@@ -2,59 +2,62 @@
 session_start();
 require_once("../bd/conn.php");
 
+/* ✅ VERIFICAR SESIÓN */
+if(!isset($_SESSION["id"]) || !isset($_SESSION["usuario"]) || !isset($_SESSION["area"])){
+    header("Location: index_Login.php");
+    exit;
+}
+
 $id_usuario = $_SESSION["id"];
 $usuario = $_SESSION["usuario"];
 $area = $_SESSION["area"];
 
-/* ✅ LISTA DE MODULOS BASE */
-$modulos_base = [
-  1 => "Introducción al Área",
-  2 => "Procedimientos Clave",
-  3 => "Normativa y Ética"
-];
 
-$modulos = [];
+/* ✅ TRAER MÓDULOS DESDE BD */
+$sql = "SELECT m.*, COUNT(c.id) as total_contenido
+        FROM modulos m
+        LEFT JOIN contenidos c ON m.id = c.id_modulo
+        WHERE m.area = :area
+        GROUP BY m.id
+        ORDER BY m.id ASC";
 
-/* ✅ CONSULTAR PROGRESO DE CADA MODULO */
-foreach ($modulos_base as $id => $titulo) {
+$stmt = $conn->prepare($sql);
+$stmt->execute([":area"=>$area]);
 
-  $sql = "SELECT porcentaje 
-            FROM progreso 
-            WHERE id_usuario = :usuario AND id_modulo = :modulo";
+$modulos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  $stmt = $conn->prepare($sql);
-  $stmt->execute([
-    ":usuario" => $id_usuario,
-    ":modulo" => $id
+/* ✅ AGREGAR PROGRESO */
+foreach ($modulos as &$m) {
+
+  $sql2 = "SELECT porcentaje FROM progreso 
+           WHERE id_usuario = :usuario AND id_modulo = :modulo";
+
+  $stmt2 = $conn->prepare($sql2);
+  $stmt2->execute([
+    ":usuario"=>$id_usuario,
+    ":modulo"=>$m["id"]
   ]);
 
-  $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-
-  $porcentaje = $resultado ? $resultado["porcentaje"] : 0;
-
-  $modulos[] = [
-    "id" => $id,
-    "titulo" => $titulo,
-    "progreso" => $porcentaje
-  ];
+  $res = $stmt2->fetch(PDO::FETCH_ASSOC);
+  $m["progreso"] = $res ? $res["porcentaje"] : 0;
 }
+unset($m);
 
-/* ✅ VALIDAR SI COMPLETÓ TODO */
+/* ✅ VALIDAR SI TODO COMPLETO */
 $completo = true;
-
-foreach ($modulos as $m) {
-  if ($m['progreso'] < 100) {
+foreach($modulos as $m){
+  if($m['progreso'] < 100){
     $completo = false;
     break;
   }
 }
 
-/* ✅ PROGRESO GLOBAL REAL */
+/* ✅ PROGRESO GLOBAL */
 $total = array_sum(array_column($modulos, 'progreso'));
 $cantidad = count($modulos);
-
 $progresoGlobal = $cantidad > 0 ? $total / $cantidad : 0;
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -102,20 +105,15 @@ $progresoGlobal = $cantidad > 0 ? $total / $cantidad : 0;
       <!-- EVALUACION -->
       <div class="card eval">
         <h3>Evaluación Final</h3>
-        <p>
-          <p class="estado">
-            <?php 
-            $m = end($modulos);
-            if($m['progreso'] == 100){
-              echo "✅ Completado";
-            } else if($m['progreso'] > 0){
-              echo "⏳ En progreso";
-            } else {
-              echo "📌 No iniciado";
-            }
-            ?>
-                    <p>Complete todos los módulos para acceder a la evaluación.</p>
-          </p>
+        <div class="estado">
+
+          <?php if ($completo): ?>
+            <p class="estado" style="color:#22c55e;">✅ Puedes presentar la evaluación</p>
+          <?php else: ?>
+            <p class="estado" style="color:#facc15;">⏳ Completa todos los módulos</p>
+          <?php endif; ?>
+          <p>Complete todos los módulos para acceder a la evaluación.</p> 
+        </div>
 
         </p>
 

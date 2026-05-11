@@ -15,15 +15,25 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if($user && password_verify($contrasena, $user["contrasena"])){
 
+        /* ✅ SESIÓN */
         $_SESSION["usuario"] = $user["nombre"];
         $_SESSION["area"] = $user["area"];
         $_SESSION["id"] = $user["id"];
+        $_SESSION["rol"] = $user["rol"]; // 🔥 IMPORTANTE
 
-        header("Location: ../views/index_User.php");
+        /* ✅ REDIRECCIÓN SEGÚN ROL */
+        if($user["rol"] === "ADMIN"){
+            header("Location: ../views/admin_modulos.php");
+        } else {
+            header("Location: ../views/index_Usuario.php");
+        }
         exit;
 
     } else {
-        echo "<script>alert('Credenciales incorrectas'); window.location.href='../views/index_Login.html';</script>";
+        echo "<script>
+                alert('Credenciales incorrectas');
+                window.location.href='../views/index_Login.php';
+              </script>";
     }
 }
 ?>

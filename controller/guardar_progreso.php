@@ -16,6 +16,6 @@ $stmt->execute([
     ":modulo"=>$id_modulo
 ]);
 
-header("Location: ../views/index_User.php");
+header("Location: ../views/index_Usuario.php");
 exit;
 ?>

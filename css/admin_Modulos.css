@@ -1,0 +1,117 @@
+*{box-sizing:border-box;}
+
+body{
+    font-family:'Montserrat',sans-serif;
+    height:100vh;
+
+    background: linear-gradient(135deg,#8f0909,#061129,#ffffff);
+    background-size:600% 600%;
+    animation:gradientAnimation 30s ease infinite;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+@keyframes gradientAnimation{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+/* DASHBOARD */
+.dashboard{
+    width:95%;
+    max-width:1100px;
+
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(25px);
+
+    border-radius:20px;
+    padding:30px;
+    color:#fff;
+}
+
+/* HEADER */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.logo{
+    font-weight:bold;
+}
+
+/* MENU */
+.menu{
+    position:relative;
+    cursor:pointer;
+}
+
+.dropdown{
+    display:none;
+    position:absolute;
+    right:0;
+    top:30px;
+    background:#020617;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.dropdown a{
+    display:block;
+    padding:10px 15px;
+    color:white;
+    text-decoration:none;
+}
+
+.dropdown a:hover{
+    background:#334155;
+}
+
+/* GRID */
+.modules{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:20px;
+}
+
+/* CARDS */
+.card{
+    background:rgba(0,0,0,0.4);
+    border-radius:16px;
+    padding:20px;
+}
+
+/* INPUT */
+input, select, textarea{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+/* FILE */
+input[type="file"]{
+    background:#fff;
+    color:black;
+}
+
+/* BTN */
+.btn{
+    display:inline-block;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:#3b82f6;
+    color:white;
+    cursor:pointer;
+}
+
+/* LOGOUT */
+.logout{
+    background:#ef4444;
+}
