@@ -2,18 +2,28 @@
 session_start();
 require_once("../bd/conn.php");
 
-/* ✅ VERIFICAR SESIÓN */
+/* VERIFICAR SESIÓN */
 if(!isset($_SESSION["id"]) || !isset($_SESSION["usuario"]) || !isset($_SESSION["area"])){
     header("Location: index_Login.php");
     exit;
 }
+/* VALIDAR ROL DESPUÉS */
+if ($_SESSION['rol'] !== 'USUARIO') {
+    header("Location: ../views/index_Login.php");
+    exit;
+}
+
+// Evitar cache para que no se pueda volver atrás después de cerrar sesión
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 
 $id_usuario = $_SESSION["id"];
 $usuario = $_SESSION["usuario"];
 $area = $_SESSION["area"];
 
 
-/* ✅ TRAER MÓDULOS DESDE BD */
+/* TRAER MÓDULOS DESDE BD */
 $sql = "SELECT m.*, COUNT(c.id) as total_contenido
         FROM modulos m
         LEFT JOIN contenidos c ON m.id = c.id_modulo
@@ -26,7 +36,7 @@ $stmt->execute([":area"=>$area]);
 
 $modulos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-/* ✅ AGREGAR PROGRESO */
+/* AGREGAR PROGRESO */
 foreach ($modulos as &$m) {
 
   $sql2 = "SELECT porcentaje FROM progreso 
@@ -43,7 +53,7 @@ foreach ($modulos as &$m) {
 }
 unset($m);
 
-/* ✅ VALIDAR SI TODO COMPLETO */
+/* VALIDAR SI TODO COMPLETO */
 $completo = true;
 foreach($modulos as $m){
   if($m['progreso'] < 100){
@@ -52,7 +62,7 @@ foreach($modulos as $m){
   }
 }
 
-/* ✅ PROGRESO GLOBAL */
+/* PROGRESO GLOBAL */
 $total = array_sum(array_column($modulos, 'progreso'));
 $cantidad = count($modulos);
 $progresoGlobal = $cantidad > 0 ? $total / $cantidad : 0;

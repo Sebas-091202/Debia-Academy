@@ -2,11 +2,21 @@
 session_start();
 require_once("../bd/conn.php");
 
-/* ✅ VALIDAR SESIÓN */
-if (!isset($_SESSION["id"])) {
+/* VERIFICAR SESIÓN */
+if(!isset($_SESSION["id"]) || !isset($_SESSION["usuario"]) || !isset($_SESSION["area"])){
     header("Location: index_Login.php");
     exit;
 }
+/* VALIDAR ROL DESPUÉS */
+if ($_SESSION['rol'] !== 'USUARIO') {
+    header("Location: ../views/index_Login.php");
+    exit;
+}
+
+// Evitar cache para que no se pueda volver atrás después de cerrar sesión
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 
 $id_usuario = $_SESSION["id"];
 $area = $_SESSION["area"];

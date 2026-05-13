@@ -2,10 +2,16 @@
 session_start();
 require_once("../bd/conn.php");
 
+/* VERIFICAR SESIÓN */
 if(!isset($_SESSION["rol"]) || $_SESSION["rol"] !== "ADMIN"){
     header("Location: index_Usuario.php");
     exit;
 }
+
+// Evitar cache para que no se pueda volver atrás después de cerrar sesión
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 
 /* OBTENER MODULOS */
 $sql = "SELECT * FROM modulos ORDER BY id DESC";
